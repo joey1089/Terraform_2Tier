@@ -1,9 +1,9 @@
 # Terraform_2Tier
+# Note
 Naming conventions to be followed for easy identifications:
 outputs.tf - output "instance_type_ot" - here ot stands for output
 variables.tf - variables "instance_type_var" here var stands for variable
 This helps in reduces a lot of stress in finding which is a variable or a resource name while referencing.
-
 Terraform 2 Tier architecture 
 
 1. Create a highly available two-tier AWS architecture containing the following:
@@ -28,6 +28,6 @@ In custom vpc - created
      2 Public Subnets
      2 Private Subnets for the Web Server Tier
      2 Private Subnets for the RDS Tier
-In one public subnet created bastion host
-In two private subnet created web server in each using auto scaling group
+In one public subnet created bastion host.
+In two private subnet created web server in each using auto scaling group.
 Created security group, one for bastion host, web server and RDS
