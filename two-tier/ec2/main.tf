@@ -41,7 +41,26 @@ data "aws_ami" "ubuntu" {
 #   db_name                = "db_mysql"
 #   username               = "admin"
 #   password               = "password"
-#   db_subnet_group_name   = aws_db_subnet_group.rds_subnet_grp.id
-#   vpc_security_group_ids = [aws_security_group.rds_private_sg.id]
+#   # db_subnet_group_name   = aws_db_subnet_group.rds_subnet_grp.id
+#   db_subnet_group_name = var.rds_subnet
+#   # vpc_security_group_ids = [aws_security_group.rds_private_sg.id]
+#   vpc_security_group_ids = "${var.rds_sg}"
 #   skip_final_snapshot    = true
 # }
+
+# Create Key pair
+resource "aws_key_pair" "TF_key" {
+  key_name   = "TF_key"
+  # public_key = tls_private_key.rsa.public_key_openssh
+  public_key = var.key_name
+}
+
+resource "tls_private_key" "rsa" {
+  algorithm = var.algorithm_type
+  rsa_bits  = 4096
+}
+
+resource "local_file" "TF-key" {
+  content  = tls_private_key.rsa.private_key_pem
+  filename = var.filename_localkey
+}

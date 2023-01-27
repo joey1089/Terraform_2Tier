@@ -4,7 +4,7 @@ resource "aws_alb" "web_alb" {
   name            = "web-alb"
   subnets         = var.public_subnets
   security_groups = [var.alb_sg]
-  idle_timeout    = 400
+  idle_timeout    = 300
 
   depends_on = [
     var.web_asg

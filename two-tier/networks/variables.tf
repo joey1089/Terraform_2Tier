@@ -3,6 +3,9 @@
 variable "vpc_cidr" {}
 variable "public_cidrs" {}
 variable "private_cidrs" {}
+variable "rds_private_cidrs" {}
 variable "public_sn_count" {}
 variable "private_sn_count" {}
+variable "rds_private_sn_count" {}
 variable "max_subnets" {}
+# variable "rds_subnet_grp" {}

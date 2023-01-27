@@ -7,7 +7,7 @@ resource "random_integer" "random" {
   max = 10
 }
 
-resource "random_shuffle" "public_az" {
+resource "random_shuffle" "random_shufle_az" {
   input        = data.aws_availability_zones.available.names
   result_count = var.max_subnets
 }
@@ -30,7 +30,7 @@ resource "aws_subnet" "public_subnets" {
   vpc_id                  = aws_vpc.main_vpc.id
   cidr_block              = var.public_cidrs[count.index]
   map_public_ip_on_launch = true
-  availability_zone       = random_shuffle.public_az.result[count.index]
+  availability_zone       = random_shuffle.random_shufle_az.result[count.index]
 
   tags = {
     Name = "public-subnet-${count.index + 1}"
@@ -38,26 +38,38 @@ resource "aws_subnet" "public_subnets" {
 }
 
 resource "aws_subnet" "private_subnets" {
-  count                   = var.private_sn_count
-  vpc_id                  = aws_vpc.main_vpc.id
-  cidr_block              = var.private_cidrs[count.index]
-  map_public_ip_on_launch = false
-  availability_zone       = random_shuffle.public_az.result[count.index]
-
+  count             = var.private_sn_count
+  vpc_id            = aws_vpc.main_vpc.id
+  cidr_block        = var.private_cidrs[count.index]
+  availability_zone = random_shuffle.random_shufle_az.result[count.index]
   tags = {
     Name = "private-subnet-${count.index + 1}"
   }
 }
 
-# # Relational Database Service Subnet Group
-# resource "aws_db_subnet_group" "rds_subnet_grp" {
-#   name = "rds_subnet_grp"
-#   # subnet_ids = [aws_subnet.sub_private_1.id, aws_subnet.sub_private_2.id]
-#   # subnet_ids = aws_subnet.private_subnets.*.id
-#    subnet_ids = aws_subnet.private_subnets.*.id 
-# }
+resource "aws_subnet" "rds_subnet" {
+  count             = var.rds_private_sn_count
+  vpc_id            = aws_vpc.main_vpc.id
+  cidr_block        = var.rds_private_cidrs[count.index]
+  availability_zone = random_shuffle.random_shufle_az.result[count.index]
+  tags = {
+    Name = "rds-subnet-${count.index + 1}"
+  }
+}
 
-# create internet gateway, elastic IP and nat gateway
+
+# Relational Database Service Subnet Group
+resource "aws_db_subnet_group" "rds_subnet_grp" {
+  # count = var.rds_private_sn_count
+  name        = "rds_subnet_grp"
+  description = "RDS database subnet group"
+  # subnet_ids = [aws_subnet.sub_private_1.id, aws_subnet.sub_private_2.id]
+  # subnet_ids = aws_subnet.private_subnets.*.id
+  #  subnet_ids = aws_subnet.private_subnets.*.id 
+  subnet_ids = aws_subnet.rds_subnet.*.id
+}
+
+# Create internet gateway, elastic IP and nat gateway
 
 resource "aws_internet_gateway" "main_igw" {
   vpc_id = aws_vpc.main_vpc.id
@@ -89,7 +101,7 @@ resource "aws_route_table" "public_rt" {
 }
 
 
-resource "aws_route" "default_public_route" {
+resource "aws_route" "public_route" {
   route_table_id         = aws_route_table.public_rt.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.main_igw.id
@@ -110,7 +122,7 @@ resource "aws_route_table" "private_rt" {
   }
 }
 
-resource "aws_route" "default_private_route" {
+resource "aws_route" "web_private_route" {
   route_table_id         = aws_route_table.private_rt.id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.main_igw.id
@@ -121,4 +133,5 @@ resource "aws_route_table_association" "private_assoc" {
   route_table_id = aws_route_table.private_rt.id
   subnet_id      = aws_subnet.private_subnets.*.id[count.index]
 }
+
 

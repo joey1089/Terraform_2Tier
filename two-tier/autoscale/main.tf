@@ -41,6 +41,7 @@ resource "aws_autoscaling_group" "bastion_host_asg" {
 # Web server
 
 resource "aws_launch_template" "web_server" {
+  # count = length(var.public_subnets)
   name_prefix            = "web-server"
   instance_type          = var.instance_type
   image_id               = data.aws_ami.ubuntu.id
@@ -48,9 +49,9 @@ resource "aws_launch_template" "web_server" {
   key_name               = var.key_name
   user_data              = var.user_data
 
-  tags = {
-    Name = "web-server"
-  }
+  # tags = {
+  #   Name = "web-server-${count.index + 1}"
+  # }
 }
 
 data "aws_alb_target_group" "web_alb_tg" {
@@ -61,8 +62,8 @@ resource "aws_autoscaling_group" "web_server_asg" {
   name                      = "web-server-asg"
   vpc_zone_identifier       = var.private_subnets
   min_size                  = 2
-  max_size                  = 4
-  desired_capacity          = 3
+  max_size                  = 2
+  desired_capacity          = 2
   health_check_grace_period = 300
   health_check_type         = "ELB"
   force_delete              = true
@@ -85,4 +86,29 @@ resource "aws_autoscaling_attachment" "asg_attach" {
   alb_target_group_arn = var.alb_tg
   # alb_targett_group_arn = aws_alb_target_group.web_alb_tg.arn
   #   aws_alb_target_group.web_alb_tg.arn
+}
+
+
+# Create RDS Instance
+resource "aws_db_instance" "rds_instance" {
+
+  allocated_storage = 8
+  engine            = "mysql"
+  engine_version    = "5.7"
+  instance_class    = "db.t2.micro"
+  identifier        = "dbinstance"
+  db_name           = "db_mysql"
+  username          = "admin"
+  password          = "password"
+  # db_subnet_group_name   = aws_db_subnet_group.rds_subnet_grp.id
+  # db_subnet_group_name = flatten(var.rds_subnet_group)[0] # only for list,sets and tuples.
+  # vpc_security_group_ids = [aws_security_group.rds_private_sg.id]
+  # vpc_security_group_ids = flatten(var.rds_security)[0]
+  db_subnet_group_name   = var.rds_subnet_group.name
+  vpc_security_group_ids = ["${var.rds_security}"]
+  skip_final_snapshot    = true
+
+  tags = {
+    Name = var.tags_rds
+  }
 }
