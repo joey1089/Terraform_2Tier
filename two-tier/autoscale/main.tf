@@ -41,7 +41,6 @@ resource "aws_autoscaling_group" "bastion_host_asg" {
 # Web server
 
 resource "aws_launch_template" "web_server" {
-  # count = length(var.public_subnets)
   name_prefix            = "web-server"
   instance_type          = var.instance_type
   image_id               = data.aws_ami.ubuntu.id
@@ -49,9 +48,9 @@ resource "aws_launch_template" "web_server" {
   key_name               = var.key_name
   user_data              = var.user_data
 
-  # tags = {
-  #   Name = "web-server-${count.index + 1}"
-  # }
+  tags = {
+    Name = "web-server-${substr(uuid(), 1, 2)}"
+  }
 }
 
 data "aws_alb_target_group" "web_alb_tg" {

@@ -50,9 +50,9 @@ data "aws_ami" "ubuntu" {
 
 # Create Key pair
 resource "aws_key_pair" "TF_key" {
-  key_name   = "TF_key"
-  # public_key = tls_private_key.rsa.public_key_openssh
-  public_key = var.key_name
+  key_name   = var.key_name_var
+  public_key = tls_private_key.rsa.public_key_openssh
+
 }
 
 resource "tls_private_key" "rsa" {
@@ -61,6 +61,7 @@ resource "tls_private_key" "rsa" {
 }
 
 resource "local_file" "TF-key" {
-  content  = tls_private_key.rsa.private_key_pem
-  filename = var.filename_localkey
+  content = tls_private_key.rsa.private_key_pem
+  # filename = "tfkey-${substr(uuid(), 1, 2)}"
+  filename = var.key_name_var
 }

@@ -31,5 +31,5 @@ override.tf.json
 
 *tmp*
 # key pair # local file private key 
-tfkey
+tfkey-*
 

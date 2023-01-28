@@ -9,9 +9,7 @@ variable "instance_type_var" {
 # variable "rds_sg" {}
 
 # variable "TF_key" {}
-variable "key_name" {
-  default = "tls_private_key.rsa.public_key_openssh"
-}
+variable "key_name_var" {}
 
 variable "algorithm_type" {
   default = "RSA"
@@ -21,10 +19,10 @@ variable "rsa_bits" {
   default = 4096
 }
 
-variable "filename_localkey" {
-  default = "tfkey"  
-}
+# variable "filename_localkey" {
+#   default = "tfkey-${substr(uuid(), 1, 2)}"  
+# }
 
-variable "content_localkey" {
-  default = "tls_private_key.rsa.private_key_pem"
-}
+# variable "content_localkey" {
+#   default = "tls_private_key.rsa.private_key_pem"
+# }
