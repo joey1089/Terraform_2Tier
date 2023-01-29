@@ -38,6 +38,7 @@ module "networking" {
   rds_private_cidrs = ["10.10.5.0/24", "10.10.6.0/24"]
   max_subnets       = 6
   # rds_subnet_grp = 
+  aws_db_subnet_group = true
 
 }
 
@@ -57,9 +58,6 @@ module "autoscaling" {
   rds_security     = module.security_group_all.rds_sg
   rds_subnet_group = module.networking.rds_subnet_grp
   tags_rds         = "rds_db_server_instance"
-
-
-
 }
 
 module "loadbalancing" {
@@ -72,4 +70,9 @@ module "loadbalancing" {
   public_subnets    = module.networking.public_subnets
   vpc_id            = module.networking.vpc_id
   web_asg           = module.autoscaling.web_asg
+}
+
+module "database_rds" {  
+  source = "./database"
+  
 }

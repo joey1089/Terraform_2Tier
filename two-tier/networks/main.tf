@@ -61,6 +61,7 @@ resource "aws_subnet" "rds_subnet" {
 # Relational Database Service Subnet Group
 resource "aws_db_subnet_group" "rds_subnet_grp" {
   # count = var.rds_private_sn_count
+  count = var.aws_db_subnet_group == true ? 1 : 0
   name        = "rds_subnet_grp"
   description = "RDS database subnet group"
   # subnet_ids = [aws_subnet.sub_private_1.id, aws_subnet.sub_private_2.id]
@@ -133,5 +134,3 @@ resource "aws_route_table_association" "private_assoc" {
   route_table_id = aws_route_table.private_rt.id
   subnet_id      = aws_subnet.private_subnets.*.id[count.index]
 }
-
-

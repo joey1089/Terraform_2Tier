@@ -25,6 +25,7 @@ resource "aws_launch_template" "bastion_host" {
     Name = "bastion-host"
   }
 }
+
 resource "aws_autoscaling_group" "bastion_host_asg" {
   name                = "bastion-asg"
   vpc_zone_identifier = var.public_subnets
@@ -39,7 +40,6 @@ resource "aws_autoscaling_group" "bastion_host_asg" {
 }
 
 # Web server
-
 resource "aws_launch_template" "web_server" {
   name_prefix            = "web-server"
   instance_type          = var.instance_type
@@ -87,27 +87,3 @@ resource "aws_autoscaling_attachment" "asg_attach" {
   #   aws_alb_target_group.web_alb_tg.arn
 }
 
-
-# Create RDS Instance
-resource "aws_db_instance" "rds_instance" {
-
-  allocated_storage = 8
-  engine            = "mysql"
-  engine_version    = "5.7"
-  instance_class    = "db.t2.micro"
-  identifier        = "dbinstance"
-  db_name           = "db_mysql"
-  username          = "admin"
-  password          = "password"
-  # db_subnet_group_name   = aws_db_subnet_group.rds_subnet_grp.id
-  # db_subnet_group_name = flatten(var.rds_subnet_group)[0] # only for list,sets and tuples.
-  # vpc_security_group_ids = [aws_security_group.rds_private_sg.id]
-  # vpc_security_group_ids = flatten(var.rds_security)[0]
-  db_subnet_group_name   = var.rds_subnet_group.name
-  vpc_security_group_ids = ["${var.rds_security}"]
-  skip_final_snapshot    = true
-
-  tags = {
-    Name = var.tags_rds
-  }
-}
