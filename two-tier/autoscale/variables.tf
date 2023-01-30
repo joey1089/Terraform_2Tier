@@ -10,3 +10,6 @@ variable "alb_tg_name" {}
 variable "alb_tg" {}
 variable "web_sg" {}
 variable "user_data" {}
+variable "rds_subnet_group" {}
+variable "rds_security" {}
+variable "tags_rds" {}

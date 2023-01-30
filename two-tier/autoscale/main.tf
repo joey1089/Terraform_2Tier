@@ -25,6 +25,7 @@ resource "aws_launch_template" "bastion_host" {
     Name = "bastion-host"
   }
 }
+
 resource "aws_autoscaling_group" "bastion_host_asg" {
   name                = "bastion-asg"
   vpc_zone_identifier = var.public_subnets
@@ -39,7 +40,6 @@ resource "aws_autoscaling_group" "bastion_host_asg" {
 }
 
 # Web server
-
 resource "aws_launch_template" "web_server" {
   name_prefix            = "web-server"
   instance_type          = var.instance_type
@@ -49,7 +49,7 @@ resource "aws_launch_template" "web_server" {
   user_data              = var.user_data
 
   tags = {
-    Name = "web-server"
+    Name = "web-server-${substr(uuid(), 1, 2)}"
   }
 }
 
@@ -61,8 +61,8 @@ resource "aws_autoscaling_group" "web_server_asg" {
   name                      = "web-server-asg"
   vpc_zone_identifier       = var.private_subnets
   min_size                  = 2
-  max_size                  = 4
-  desired_capacity          = 3
+  max_size                  = 2
+  desired_capacity          = 2
   health_check_grace_period = 300
   health_check_type         = "ELB"
   force_delete              = true
@@ -86,3 +86,4 @@ resource "aws_autoscaling_attachment" "asg_attach" {
   # alb_targett_group_arn = aws_alb_target_group.web_alb_tg.arn
   #   aws_alb_target_group.web_alb_tg.arn
 }
+
