@@ -12,7 +12,7 @@ resource "aws_alb" "web_alb" {
 }
 
 resource "aws_alb_target_group" "web_alb_tg" {
-  name     = "web-alb-tg-${substr(uuid(), 1, 5)}"
+  name     = "web-alb-tg-${substr(uuid(), 1, 4)}" # not essential
   port     = var.tg_port
   protocol = var.tg_protocol
   vpc_id   = var.vpc_id

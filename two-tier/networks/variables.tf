@@ -9,4 +9,4 @@ variable "private_sn_count" {}
 variable "rds_private_sn_count" {}
 variable "max_subnets" {}
 # variable "rds_subnet_grp" {}
-variable "aws_db_subnet_group " {}
+variable "aws_db_subnet_group" {}

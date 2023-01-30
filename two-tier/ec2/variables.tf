@@ -11,6 +11,8 @@ variable "instance_type_var" {
 # variable "TF_key" {}
 variable "key_name_var" {}
 
+variable "public_key_path" {}
+
 variable "algorithm_type" {
   default = "RSA"
 }

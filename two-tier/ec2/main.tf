@@ -52,6 +52,7 @@ data "aws_ami" "ubuntu" {
 resource "aws_key_pair" "TF_key" {
   key_name   = var.key_name_var
   public_key = tls_private_key.rsa.public_key_openssh
+  # public_key = file(var.public_key_path)
 
 }
 
