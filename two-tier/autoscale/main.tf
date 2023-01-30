@@ -12,8 +12,13 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-# Create a bastion host instance
 
+data "template_file" "user_data" {
+template = var.user_data
+}
+
+
+# Create a bastion host instance
 resource "aws_launch_template" "bastion_host" {
   name_prefix            = "bastion_host"
   instance_type          = var.instance_type
@@ -22,9 +27,10 @@ resource "aws_launch_template" "bastion_host" {
   key_name               = var.key_name
 
   tags = {
-    Name = "bastion-host"
+    Name = "Bastion-Host"
   }
 }
+
 
 resource "aws_autoscaling_group" "bastion_host_asg" {
   name                = "bastion-asg"
@@ -37,19 +43,28 @@ resource "aws_autoscaling_group" "bastion_host_asg" {
     id      = aws_launch_template.bastion_host.id
     version = "$Latest"
   }
+
+  tag {
+    key                 = "Name"
+    value               = "Bastion-Host"
+    propagate_at_launch = true
+  }
 }
 
 # Web server
 resource "aws_launch_template" "web_server" {
+  # count = 0
   name_prefix            = "web-server"
   instance_type          = var.instance_type
   image_id               = data.aws_ami.ubuntu.id
+  
   vpc_security_group_ids = [var.web_sg]
   key_name               = var.key_name
-  user_data              = var.user_data
+  user_data              = "${data.template_file.user_data.rendered}"
 
   tags = {
-    Name = "web-server-${substr(uuid(), 1, 2)}"
+    Name = "web-server"
+    # Name = "web-server-${count[index] + 1}"
   }
 }
 
@@ -58,6 +73,7 @@ data "aws_alb_target_group" "web_alb_tg" {
 }
 
 resource "aws_autoscaling_group" "web_server_asg" {
+  # count = length(var.private_subnets)
   name                      = "web-server-asg"
   vpc_zone_identifier       = var.private_subnets
   min_size                  = 2
@@ -75,6 +91,14 @@ resource "aws_autoscaling_group" "web_server_asg" {
   launch_template {
     id      = aws_launch_template.web_server.id
     version = "$Latest"
+  }
+
+
+  tag {
+    key                 = "Name"
+    # value               = "Web-Server-${count.index + 1}"
+    value = "Web-Server-${substr(uuid(), 0, 2)}"
+    propagate_at_launch = true
   }
 
 }

@@ -14,7 +14,7 @@ module "my_ec2" {
   # rds_subnet = module.networking.rds_subnet_grp
   # rds_sg = module.security_group_all.rds_sg
   key_name_var = local.key_name
-
+  public_key_path = var.public_key_path
 
 }
 
@@ -52,7 +52,7 @@ module "autoscaling" {
   alb_tg           = module.loadbalancing.alb_tg
   public_subnets   = module.networking.public_subnets
   private_subnets  = module.networking.private_subnets
-  user_data        = filebase64("./user-install.sh")
+  user_data        = filebase64("./user-install.tpl")
   instance_type    = "t2.micro"
   web_sg           = module.security_group_all.web_sg
   rds_security     = module.security_group_all.rds_sg
@@ -63,16 +63,25 @@ module "autoscaling" {
 module "loadbalancing" {
   source            = "./alb"
   tg_protocol       = "HTTP"
-  tg_port           = 80
+  tg_port           = 8083
   listener_protocol = "HTTP"
-  listener_port     = 80
+  listener_port     = 8080
   alb_sg            = module.security_group_all.alb_sg
   public_subnets    = module.networking.public_subnets
   vpc_id            = module.networking.vpc_id
   web_asg           = module.autoscaling.web_asg
 }
 
-module "database_rds" {  
-  source = "./database"
-  
+module "database_rds" {
+  source                 = "./database"
+  db_storage             = 5
+  db_engine_version      = "5.7"
+  db_instance_class      = "db.t2.micro"
+  db_name                =  var.db_name #"mysql_rds"
+  dbuser                 =  var.dbuser #"myuser"
+  dbpassword             = var.dbpassword #"nopassword"
+  dbidentifier          = "myrds-db"
+  skip_final_snapshot    = true
+  db_subnet_group_name   = module.networking.db_subnet_group_name[0]
+  vpc_security_group_ids = module.security_group_all.rds_sg
 }

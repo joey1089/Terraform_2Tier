@@ -41,6 +41,7 @@ resource "aws_subnet" "private_subnets" {
   count             = var.private_sn_count
   vpc_id            = aws_vpc.main_vpc.id
   cidr_block        = var.private_cidrs[count.index]
+  map_public_ip_on_launch = false
   availability_zone = random_shuffle.random_shufle_az.result[count.index]
   tags = {
     Name = "private-subnet-${count.index + 1}"
@@ -61,7 +62,7 @@ resource "aws_subnet" "rds_subnet" {
 # Relational Database Service Subnet Group
 resource "aws_db_subnet_group" "rds_subnet_grp" {
   # count = var.rds_private_sn_count
-  count = var.aws_db_subnet_group == true ? 1 : 0
+  count       = var.aws_db_subnet_group == true ? 1 : 0
   name        = "rds_subnet_grp"
   description = "RDS database subnet group"
   # subnet_ids = [aws_subnet.sub_private_1.id, aws_subnet.sub_private_2.id]
