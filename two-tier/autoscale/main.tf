@@ -87,13 +87,10 @@ resource "aws_autoscaling_group" "web_server_asg" {
   lifecycle {
     ignore_changes = [load_balancers, target_group_arns]
   }
-
   launch_template {
     id      = aws_launch_template.web_server.id
     version = "$Latest"
   }
-
-
   tag {
     key                 = "Name"
     # value               = "Web-Server-${count.index + 1}"

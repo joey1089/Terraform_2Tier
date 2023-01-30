@@ -63,9 +63,9 @@ module "autoscaling" {
 module "loadbalancing" {
   source            = "./alb"
   tg_protocol       = "HTTP"
-  tg_port           = 8083
+  tg_port           = 80
   listener_protocol = "HTTP"
-  listener_port     = 8080
+  listener_port     = 80
   alb_sg            = module.security_group_all.alb_sg
   public_subnets    = module.networking.public_subnets
   vpc_id            = module.networking.vpc_id
@@ -74,7 +74,7 @@ module "loadbalancing" {
 
 module "database_rds" {
   source                 = "./database"
-  db_storage             = 5
+  db_storage             = 20 # minimum required by aws, free upto 100GB
   db_engine_version      = "5.7"
   db_instance_class      = "db.t2.micro"
   db_name                =  var.db_name #"mysql_rds"
