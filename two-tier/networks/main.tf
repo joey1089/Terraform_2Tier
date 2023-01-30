@@ -49,9 +49,17 @@ resource "aws_subnet" "private_subnets" {
   }
 }
 
-# Internet gateway, Elastic IP and Nat gateway
+# # Relational Database Service Subnet Group
+# resource "aws_db_subnet_group" "rds_subnet_grp" {
+#   name = "rds_subnet_grp"
+#   # subnet_ids = [aws_subnet.sub_private_1.id, aws_subnet.sub_private_2.id]
+#   # subnet_ids = aws_subnet.private_subnets.*.id
+#    subnet_ids = aws_subnet.private_subnets.*.id 
+# }
 
-resource "aws_internet_gateway" "project_igw" {
+# create internet gateway, elastic IP and nat gateway
+
+resource "aws_internet_gateway" "main_igw" {
   vpc_id = aws_vpc.main_vpc.id
 
   tags = {
@@ -66,7 +74,7 @@ resource "aws_eip" "nat_eip" {
   vpc = true
 }
 
-resource "aws_nat_gateway" "project_ngw" {
+resource "aws_nat_gateway" "main_igw" {
   allocation_id = aws_eip.nat_eip.id
   subnet_id     = aws_subnet.public_subnets[1].id
 }
@@ -84,7 +92,7 @@ resource "aws_route_table" "public_rt" {
 resource "aws_route" "default_public_route" {
   route_table_id         = aws_route_table.public_rt.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.project_igw.id
+  gateway_id             = aws_internet_gateway.main_igw.id
 }
 
 
@@ -105,7 +113,7 @@ resource "aws_route_table" "private_rt" {
 resource "aws_route" "default_private_route" {
   route_table_id         = aws_route_table.private_rt.id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.project_ngw.id
+  nat_gateway_id         = aws_nat_gateway.main_igw.id
 }
 
 resource "aws_route_table_association" "private_assoc" {
