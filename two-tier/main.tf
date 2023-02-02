@@ -14,7 +14,7 @@ module "my_ec2" {
   # rds_subnet = module.networking.rds_subnet_grp
   # rds_sg = module.security_group_all.rds_sg
   key_name_var = local.key_name
-  public_key_path = var.public_key_path
+  # public_key_path = var.public_key_path
 
 }
 
